@@ -1,6 +1,6 @@
 """
 ================================================================
-MERCEDES-BENZ PAINT SHOP GREENFIELD PROJECT
+GREENFIELD AUTOMOTIVE PAINT SHOP PROJECT
 Construction Milestone Delay Predictor
 
 Streamlit web application — 4 tabs:
@@ -103,12 +103,12 @@ col1, col2 = st.columns([3, 1])
 with col1:
     st.markdown('<div class="main-header">🏗️ Construction Milestone Delay Predictor</div>',
                 unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">Mercedes-Benz Paint Shop  •  3565 activities  •  ML-based prediction</div>',
+    st.markdown('<div class="sub-header">Greenfield Automotive Paint Shop  •  3565 activities  •  ML-based prediction</div>',
                 unsafe_allow_html=True)
 with col2:
     st.markdown("""
     <div style='text-align:right; padding-top:1rem;'>
-        <a href='https://github.com/your-username/milestone-delay-prediction' target='_blank'
+        <a href='https://github.com/alucard3807/milestone-delay-prediction' target='_blank'
            style='text-decoration:none; color:#4A90E2; font-weight:500;'>
             🐙 GitHub Repo
         </a>
@@ -123,24 +123,24 @@ st.markdown("---")
 # ----------------------------------------------------------------
 @st.cache_data
 def load_data():
-    """CSV verisini yükle"""
+    """Load the CSV dataset"""
     try:
         df = pd.read_csv('paintshop_milestone_delays.csv',
                          parse_dates=['planned_start', 'planned_finish', 'actual_finish_date'])
         return df
     except FileNotFoundError:
-        st.error("⚠️ paintshop_milestone_delays.csv bulunamadı. Proje klasöründe olmalı.")
+        st.error("⚠️ paintshop_milestone_delays.csv not found. It must be in the project folder.")
         return None
 
 
 @st.cache_resource
 def load_model():
-    """Eğitilmiş modeli yükle"""
+    """Load the trained model"""
     try:
         with open('final_model.pkl', 'rb') as f:
             return pickle.load(f)
     except FileNotFoundError:
-        st.warning("⚠️ final_model.pkl bulunamadı. Demo modunda çalışacak (gerçek tahmin yapılmayacak).")
+        st.warning("⚠️ final_model.pkl not found. Running in demo mode (no real prediction).")
         return None
 
 
@@ -163,66 +163,66 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # TAB 1: RISK PREDICTOR
 # ================================================================
 with tab1:
-    st.subheader("Risk Tahmin Aracı")
-    st.markdown("Aktivite bilgilerini girin, model gecikme riskini tahmin etsin.")
+    st.subheader("Risk Prediction Tool")
+    st.markdown("Enter the activity details and let the model predict the delay risk.")
 
     col_form, col_result = st.columns([1, 1])
 
     # ---- FORM (LEFT) ----
     with col_form:
-        st.markdown("##### 📝 Aktivite Bilgileri")
+        st.markdown("##### 📝 Activity Information")
 
         contractor = st.selectbox(
-            "Yüklenici",
+            "Contractor",
             options=["Vendor_A", "Vendor_B", "Vendor_C", "Vendor_D",
                      "Vendor_E", "Vendor_F", "Vendor_G"],
-            index=6,  # Vendor_G default (en problemli — demo için)
-            help="Vendor_A en güvenilir, Vendor_G en riskli yüklenici"
+            index=6,  # Vendor_G default (most problematic — for demo)
+            help="Vendor_A is the most reliable, Vendor_G is the riskiest contractor"
         )
 
         discipline = st.selectbox(
-            "Disiplin",
+            "Discipline",
             options=["Civil", "MEP", "Architectural", "Process", "Design"],
             index=1
         )
 
         col_a, col_b = st.columns(2)
         with col_a:
-            duration = st.slider("Planlanan süre (gün)", 1, 60, 25,
-                                 help="Aktivitenin planlanmış toplam süresi")
-            predecessor_count = st.slider("Predecessor sayısı", 0, 12, 5,
-                                          help="Bağımlı olduğu önceki aktivite sayısı")
-            crew_size = st.slider("Ekip büyüklüğü", 1, 20, 8)
+            duration = st.slider("Planned duration (days)", 1, 60, 25,
+                                 help="Total planned duration of the activity")
+            predecessor_count = st.slider("Predecessor count", 0, 12, 5,
+                                          help="Number of preceding dependent activities")
+            crew_size = st.slider("Crew size", 1, 20, 8)
         with col_b:
-            float_days = st.slider("Float gün", 0, 30, 5,
-                                   help="Esneklik payı")
-            rfi = st.number_input("Açık RFI sayısı", 0, 20, 2)
-            ncr = st.number_input("Açık NCR sayısı", 0, 20, 1)
+            float_days = st.slider("Float days", 0, 30, 5,
+                                   help="Slack / flexibility buffer")
+            rfi = st.number_input("Open RFI count", 0, 20, 2)
+            ncr = st.number_input("Open NCR count", 0, 20, 1)
 
-        submittal = st.number_input("Pending submittal sayısı", 0, 20, 1)
+        submittal = st.number_input("Pending submittal count", 0, 20, 1)
 
         col_c, col_d = st.columns(2)
         with col_c:
-            critical = st.checkbox("Kritik yolda mı?", value=True)
-            outdoor = st.checkbox("Dış mekan mı?", value=True)
+            critical = st.checkbox("On critical path?", value=True)
+            outdoor = st.checkbox("Outdoor?", value=True)
         with col_d:
-            season = st.selectbox("Mevsim", ["Spring", "Summer", "Autumn", "Winter"], index=3)
+            season = st.selectbox("Season", ["Spring", "Summer", "Autumn", "Winter"], index=3)
             material = st.selectbox(
-                "Materyal teslim durumu",
+                "Material delivery status",
                 ["Delivered", "In Transit", "Ordered", "Not Ordered"]
             )
 
-        building = st.selectbox("Bina", ["A1", "A2", "A3", "A4", "A5"])
-        contract_type = st.selectbox("Sözleşme tipi", ["Lump Sum", "Unit Price", "Cost Plus"])
+        building = st.selectbox("Building", ["A1", "A2", "A3", "A4", "A5"])
+        contract_type = st.selectbox("Contract type", ["Lump Sum", "Unit Price", "Cost Plus"])
 
-        predict_button = st.button("🎯 Tahmin Et", type="primary", use_container_width=True)
+        predict_button = st.button("🎯 Predict", type="primary", use_container_width=True)
 
     # ---- RESULT (RIGHT) ----
     with col_result:
-        st.markdown("##### 🎯 Tahmin Sonucu")
+        st.markdown("##### 🎯 Prediction Result")
 
         if predict_button:
-            # Yüklenici risk skorları (EDA'dan)
+            # Contractor risk baselines (from EDA)
             contractor_baselines = {
                 "Vendor_A": 2.0, "Vendor_B": 3.5, "Vendor_C": 5.5,
                 "Vendor_D": 7.5, "Vendor_E": 10.5, "Vendor_F": 14.5,
@@ -230,8 +230,8 @@ with tab1:
             }
             risky_contractors = ["Vendor_E", "Vendor_F", "Vendor_G"]
 
-            # Basit kural-tabanlı tahmin (gerçek model olmadığında fallback)
-            # Gerçek modelle değiştirilmeli ama mantık aynı
+            # Simple rule-based prediction (fallback when no real model)
+            # Should be replaced with real model, but logic is the same
             base_delay = contractor_baselines[contractor]
 
             adjustments = 0
@@ -248,7 +248,7 @@ with tab1:
             predicted_delay = base_delay + adjustments + np.random.normal(0, 1)
             predicted_delay = max(0, predicted_delay)
 
-            # Kategori belirleme
+            # Category determination
             if predicted_delay < 1:
                 category = "On Time"
                 color_class = "prediction-ontime"
@@ -266,31 +266,31 @@ with tab1:
                 color_class = "prediction-severe"
                 emoji = "🔴"
 
-            # Sonuç kutusu
+            # Result box
             st.markdown(f"""
             <div class="{color_class}">
                 <div style='font-size: 0.85rem; color: #666; letter-spacing: 2px; margin-bottom: 0.5rem;'>
-                    RİSK KATEGORİSİ
+                    RISK CATEGORY
                 </div>
                 <div style='font-size: 2.5rem; font-weight: bold; color: #1F1F1F;'>
                     {emoji} {category}
                 </div>
                 <div style='font-size: 1.1rem; color: #555; margin-top: 0.5rem;'>
-                    Tahmini gecikme: <b>{predicted_delay:.1f} gün</b>
+                    Predicted delay: <b>{predicted_delay:.1f} days</b>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
-            # Metric kartları
+            # Metric cards
             col_m1, col_m2 = st.columns(2)
             with col_m1:
                 confidence = min(0.95, 0.65 + (adjustments / 30))
-                st.metric("Güven skoru", f"{confidence:.2f}")
+                st.metric("Confidence score", f"{confidence:.2f}")
             with col_m2:
                 st.metric("Model", "Logistic Regression")
 
-            # SHAP-tarzı feature katkıları
-            st.markdown("##### 💡 En Etkili Faktörler")
+            # SHAP-style feature contributions
+            st.markdown("##### 💡 Most Influential Factors")
 
             factors = []
             if contractor in risky_contractors:
@@ -326,96 +326,96 @@ with tab1:
                 </div>
                 """, unsafe_allow_html=True)
 
-            # İş önerileri
-            st.markdown("##### 🎬 Önerilen Aksiyon")
+            # Business recommendations
+            st.markdown("##### 🎬 Recommended Action")
             if category == "Severe":
                 st.error(
-                    "🚨 **Yüksek risk!** Bu aktivite için PMO toplantısında özel önlem alınması önerilir. "
-                    "Yüklenici performansı ve materyal durumu gözden geçirilmeli."
+                    "🚨 **High risk!** Special action is recommended in the PMO meeting for this activity. "
+                    "Contractor performance and material status should be reviewed."
                 )
             elif category == "Moderate":
                 st.warning(
-                    "⚠️ **Orta risk.** Haftalık takipte yakından izleyin. Açık RFI/NCR'ları öncelikli kapatın."
+                    "⚠️ **Medium risk.** Monitor closely in weekly tracking. Prioritize closing open RFI/NCR."
                 )
             elif category == "Mild":
                 st.info(
-                    "📍 **Düşük risk.** Standart izleme yeterli. Erken uyarı sinyali için engel sayaçlarını takip edin."
+                    "📍 **Low risk.** Standard monitoring is sufficient. Track blocker counters for early warning signals."
                 )
             else:
                 st.success(
-                    "✅ **Düşük risk.** Bu aktivitenin planlanan tarihte tamamlanması bekleniyor."
+                    "✅ **Low risk.** This activity is expected to complete on schedule."
                 )
         else:
-            st.info("👈 Solda formu doldurun ve **'Tahmin Et'** butonuna basın.")
+            st.info("👈 Fill in the form on the left and click **'Predict'**.")
 
 
 # ================================================================
 # TAB 2: EDA DASHBOARD
 # ================================================================
 with tab2:
-    st.subheader("Interaktif EDA Dashboard")
+    st.subheader("Interactive EDA Dashboard")
 
     if df is None:
-        st.error("Veri yüklenemedi. Lütfen CSV dosyasının doğru konumda olduğundan emin olun.")
+        st.error("Data could not be loaded. Please make sure the CSV file is in the correct location.")
     else:
-        # Filtreler
-        st.markdown("##### 🔍 Filtreler")
+        # Filters
+        st.markdown("##### 🔍 Filters")
         col_f1, col_f2, col_f3 = st.columns(3)
         with col_f1:
             selected_contractors = st.multiselect(
-                "Yüklenici", options=sorted(df['contractor_id'].unique()),
+                "Contractor", options=sorted(df['contractor_id'].unique()),
                 default=sorted(df['contractor_id'].unique())
             )
         with col_f2:
             selected_disciplines = st.multiselect(
-                "Disiplin", options=sorted(df['discipline'].unique()),
+                "Discipline", options=sorted(df['discipline'].unique()),
                 default=sorted(df['discipline'].unique())
             )
         with col_f3:
             selected_seasons = st.multiselect(
-                "Mevsim", options=["Spring", "Summer", "Autumn", "Winter"],
+                "Season", options=["Spring", "Summer", "Autumn", "Winter"],
                 default=["Spring", "Summer", "Autumn", "Winter"]
             )
 
-        # Filtreleme
+        # Filtering
         df_filtered = df[
             df['contractor_id'].isin(selected_contractors) &
             df['discipline'].isin(selected_disciplines) &
             df['season'].isin(selected_seasons)
         ]
 
-        # Özet metrikler
-        st.markdown("##### 📊 Özet")
+        # Summary metrics
+        st.markdown("##### 📊 Summary")
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Aktivite sayısı", f"{len(df_filtered):,}")
-        m2.metric("Ortalama gecikme", f"{df_filtered['delay_days'].mean():.1f} gün")
-        m3.metric("Maks. gecikme", f"{df_filtered['delay_days'].max():.0f} gün")
+        m1.metric("Activity count", f"{len(df_filtered):,}")
+        m2.metric("Average delay", f"{df_filtered['delay_days'].mean():.1f} days")
+        m3.metric("Max delay", f"{df_filtered['delay_days'].max():.0f} days")
         severe_pct = (df_filtered['delay_category'] == 'Severe').mean() * 100
-        m4.metric("Severe oranı", f"%{severe_pct:.1f}")
+        m4.metric("Severe rate", f"{severe_pct:.1f}%")
 
         st.markdown("---")
 
-        # Grafikler
-        st.markdown("##### 📈 Görselleştirmeler")
+        # Charts
+        st.markdown("##### 📈 Visualizations")
         sns.set_style('whitegrid')
 
-        # 2 sıra grafik
+        # Row 1
         g1, g2 = st.columns(2)
 
         with g1:
-            st.markdown("**Yüklenici Bazında Gecikme Dağılımı**")
+            st.markdown("**Delay Distribution by Contractor**")
             fig, ax = plt.subplots(figsize=(8, 5))
             sns.boxplot(data=df_filtered, x='contractor_id', y='delay_days',
                         order=sorted(df_filtered['contractor_id'].unique()),
                         hue='contractor_id', palette='Blues_r', legend=False, ax=ax)
-            ax.set_xlabel("Yüklenici")
-            ax.set_ylabel("Gecikme (gün)")
+            ax.set_xlabel("Contractor")
+            ax.set_ylabel("Delay (days)")
             ax.axhline(0, color='gray', linestyle='--', alpha=0.5)
             st.pyplot(fig)
             plt.close()
 
         with g2:
-            st.markdown("**Risk Kategori Dağılımı**")
+            st.markdown("**Risk Category Distribution**")
             fig, ax = plt.subplots(figsize=(8, 5))
             cat_order = ['On Time', 'Mild', 'Moderate', 'Severe']
             cat_colors = ['#2ECC71', '#F1C40F', '#F39C12', '#E24B4A']
@@ -424,39 +424,40 @@ with tab2:
             for bar, val in zip(bars, counts.values):
                 pct = val / counts.sum() * 100
                 ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 5,
-                        f'{val}\n(%{pct:.1f})', ha='center', fontsize=9)
-            ax.set_ylabel("Aktivite sayısı")
+                        f'{val}\n({pct:.1f}%)', ha='center', fontsize=9)
+            ax.set_ylabel("Activity count")
             st.pyplot(fig)
             plt.close()
 
+        # Row 2
         g3, g4 = st.columns(2)
 
         with g3:
-            st.markdown("**Disipline Göre Ortalama Gecikme**")
+            st.markdown("**Average Delay by Discipline**")
             fig, ax = plt.subplots(figsize=(8, 5))
             disc_avg = df_filtered.groupby('discipline')['delay_days'].mean().sort_values()
             ax.barh(disc_avg.index, disc_avg.values, color='#4A90E2', edgecolor='white')
-            ax.set_xlabel("Ortalama gecikme (gün)")
+            ax.set_xlabel("Average delay (days)")
             for i, v in enumerate(disc_avg.values):
                 ax.text(v + 0.1, i, f'{v:.1f}', va='center', fontsize=10)
             st.pyplot(fig)
             plt.close()
 
         with g4:
-            st.markdown("**Mevsim Bazında Gecikme**")
+            st.markdown("**Delay by Season**")
             fig, ax = plt.subplots(figsize=(8, 5))
             season_order = ['Spring', 'Summer', 'Autumn', 'Winter']
             df_season = df_filtered[df_filtered['season'].isin(season_order)]
             sns.violinplot(data=df_season, x='season', y='delay_days',
                           order=season_order, hue='season',
                           palette='coolwarm', legend=False, ax=ax)
-            ax.set_xlabel("Mevsim")
-            ax.set_ylabel("Gecikme (gün)")
+            ax.set_xlabel("Season")
+            ax.set_ylabel("Delay (days)")
             st.pyplot(fig)
             plt.close()
 
-        # Korelasyon
-        st.markdown("**Sayısal Değişkenler Korelasyon Matrisi**")
+        # Correlation
+        st.markdown("**Correlation Matrix of Numerical Variables**")
         num_cols = ['planned_duration_days', 'predecessor_count', 'float_days',
                     'crew_size', 'open_rfi_count', 'open_ncr_count',
                     'pending_submittal_count', 'contractor_avg_delay_days',
@@ -474,10 +475,10 @@ with tab2:
 # TAB 3: MODEL PERFORMANCE
 # ================================================================
 with tab3:
-    st.subheader("Model Performans Karşılaştırması")
+    st.subheader("Model Performance Comparison")
 
-    # Regresyon sonuçları
-    st.markdown("##### 🎯 Regresyon — Kaç gün gecikme tahmini?")
+    # Regression results
+    st.markdown("##### 🎯 Regression — How many days of delay?")
     reg_results = pd.DataFrame({
         'Model': ['Linear Regression', 'LightGBM (tuned)', 'XGBoost', 'Random Forest', 'Decision Tree'],
         'RMSE': [2.72, 2.84, 2.97, 3.06, 4.04],
@@ -491,8 +492,8 @@ with tab3:
         use_container_width=True, hide_index=True
     )
 
-    # Sınıflandırma sonuçları
-    st.markdown("##### 📊 Sınıflandırma — Hangi risk kategorisi?")
+    # Classification results
+    st.markdown("##### 📊 Classification — Which risk category?")
     clf_results = pd.DataFrame({
         'Model': ['Logistic Regression', 'XGBoost', 'LightGBM', 'Random Forest', 'Decision Tree'],
         'Accuracy': [71.2, 68.7, 68.0, 67.5, 60.9],
@@ -504,11 +505,11 @@ with tab3:
         use_container_width=True, hide_index=True
     )
 
-    # Beklenmedik bulgu kutusu
+    # Unexpected finding callout
     st.warning(
-        "💡 **Beklenmedik Bulgu:** Lineer modeller karmaşık ağaç modellerini yendi. "
-        "Sentetik verimizde doğrusal sinyaller dominantmış. Gerçek proje verisinde durum farklı olabilir — "
-        "bu yüzden hem lineer hem ağaç modellerini hazırda tutuyoruz."
+        "💡 **Unexpected Finding:** Linear models outperformed complex tree-based models. "
+        "Linear signals were dominant in our synthetic data. With real project data, the picture might differ — "
+        "this is why we keep both linear and tree-based models in our toolkit."
     )
 
     st.markdown("---")
@@ -528,19 +529,19 @@ with tab3:
         fig, ax = plt.subplots(figsize=(7, 6))
         sns.heatmap(cm_data, annot=True, fmt='.1f', cmap='Blues',
                     xticklabels=labels, yticklabels=labels,
-                    cbar_kws={'label': '% (her satır toplamı 100)'}, ax=ax)
-        ax.set_xlabel("Tahmin")
-        ax.set_ylabel("Gerçek")
+                    cbar_kws={'label': '% (each row sums to 100)'}, ax=ax)
+        ax.set_xlabel("Predicted")
+        ax.set_ylabel("Actual")
         st.pyplot(fig)
         plt.close()
 
     with col_cm2:
-        st.markdown("**📌 Yorumlar:**")
+        st.markdown("**📌 Interpretation:**")
         st.markdown("""
-        - ✅ **On Time** %84 doğru — net ayırt edilen sınıf
-        - ✅ **Severe** %70.5 yakalandı — en kritik sınıf
-        - ⚠️ **Moderate** %44.8 — Mild ve Severe arasında sıkışmış
-        - 🎯 **En kritik:** Severe → On Time yanlış tahmini sıfır (felaket önlendi)
+        - ✅ **On Time** 84% correct — well-separated class
+        - ✅ **Severe** 70.5% captured — the most critical class
+        - ⚠️ **Moderate** 44.8% — squeezed between Mild and Severe
+        - 🎯 **Most critical:** Severe → On Time misprediction is zero (worst case avoided)
         """)
 
     st.markdown("---")
@@ -556,15 +557,15 @@ with tab3:
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.barh(fi_data['Feature'][::-1], fi_data['Importance (%)'][::-1],
             color='#4A90E2', edgecolor='white')
-    ax.set_xlabel("Önem skoru (%)")
+    ax.set_xlabel("Importance score (%)")
     for i, v in enumerate(fi_data['Importance (%)'][::-1]):
         ax.text(v + 0.2, i, f'{v:.1f}%', va='center', fontsize=10)
     st.pyplot(fig)
     plt.close()
 
     st.info(
-        "💡 Top 5 feature'ın **4'ü yüklenici ile ilgili**. EDA hipotezi doğrulandı: "
-        "'Yüklenici seçimi her şeydir.'"
+        "💡 **4 out of the top 5 features are contractor-related**. The EDA hypothesis was confirmed: "
+        "'Contractor selection is everything.'"
     )
 
 
@@ -572,7 +573,7 @@ with tab3:
 # TAB 4: ABOUT
 # ================================================================
 with tab4:
-    st.subheader("Proje Hakkında")
+    st.subheader("About the Project")
 
     col_about1, col_about2 = st.columns([2, 1])
 
@@ -580,36 +581,36 @@ with tab4:
         st.markdown("""
         ### 🏗️ Construction Milestone Delay Prediction
 
-        Bu proje, **Mercedes-Benz Paint Shop greenfield projesi** verisinden türetilmiş bir veri seti üzerinde,
-        inşaat aktivitelerinin gecikme riskini tahmin eden bir makine öğrenmesi sistemidir.
+        This project is a machine learning system that predicts the delay risk of construction activities,
+        built on a dataset derived from a **Greenfield Automotive Paint Shop Project**.
 
-        #### 🎯 Amaç
-        Geleneksel PMO yaklaşımının (haftalık toplantılarda subjektif kırmızı/sarı/yeşil değerlendirme) yerine,
-        **veriye dayalı bir erken uyarı sistemi** geliştirmek.
+        #### 🎯 Goal
+        Replace the traditional PMO approach (subjective red/yellow/green ratings in weekly meetings) with
+        a **data-driven early warning system**.
 
-        #### 🔬 Metodoloji
-        - **EDA:** Veriyi tanımak, hipotezler kurmak
-        - **Feature Engineering:** EDA bulgularını model için anlamlı feature'lara çevirmek
-        - **Modeling:** 5 farklı algoritma karşılaştırması, hiperparametre optimizasyonu
+        #### 🔬 Methodology
+        - **EDA:** Understand the data, form hypotheses
+        - **Feature Engineering:** Translate EDA findings into model-ready features
+        - **Modeling:** Comparison of 5 algorithms, hyperparameter optimization
 
-        #### 📊 Veri Seti
-        - 3,565 aktivite × 26 değişken
-        - 18 aylık proje yaşam döngüsü
-        - Sentetik (gerçek MS Project schedule'mizden yapısal bilgi, hassas detaylar anonimleştirilmiş)
+        #### 📊 Dataset
+        - 3,565 activities × 26 variables
+        - 18-month project lifecycle
+        - Synthetic (structural information from real MS Project schedule, sensitive details anonymized)
 
-        #### ⚠️ Sınırlamalar
-        - Veri sentetik — gerçek proje verisiyle yeniden eğitim gerekiyor
-        - Tek tesis verisi — çoklu tesis için transfer learning gerekiyor
-        - Production'a hazır değil — MLOps entegrasyonu eksik
+        #### ⚠️ Limitations
+        - Synthetic data — retraining with real project data is needed
+        - Single-plant data — transfer learning required for multi-plant
+        - Not production-ready — MLOps integration is missing
         """)
 
     with col_about2:
-        st.markdown("### 🔗 Bağlantılar")
+        st.markdown("### 🔗 Links")
         st.markdown("""
         - 🐙 **GitHub:**
-          [milestone-delay-prediction](https://github.com/your-username/milestone-delay-prediction)
+          [milestone-delay-prediction](https://github.com/alucard3807/milestone-delay-prediction)
         - 💼 **LinkedIn:**
-          [linkedin.com/in/your-profile](https://linkedin.com/in/your-profile)
+          [ugurkaplanuk](https://www.linkedin.com/in/ugurkaplanuk/)
         - 📚 **Bootcamp:**
           [Miuul Data Science](https://miuul.com)
         """)
@@ -626,7 +627,7 @@ with tab4:
         """)
 
     st.markdown("---")
-    st.markdown("### 📚 Literatür Referansları")
+    st.markdown("### 📚 Literature References")
     refs = [
         ("Gondia et al. (2020)", "ML Algorithms for Construction Delay Risk Prediction",
          "https://doi.org/10.1061/(ASCE)CO.1943-7862.0001736"),
@@ -643,6 +644,6 @@ with tab4:
     st.markdown("---")
     st.markdown("""
     <div style='text-align:center; padding:1rem; color:#666; font-size:0.9rem;'>
-        Built with 💙 by Uğur · Mercedes-Benz Paint Shop Project · May 2026
+        Built with 💙 by Uğur · Greenfield Automotive Paint Shop Project · May 2026
     </div>
     """, unsafe_allow_html=True)
